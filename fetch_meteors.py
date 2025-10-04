@@ -45,8 +45,8 @@ def save_data(data, filename='meteor_data.json'):
     Save the meteor data to a local file.
     """
     # Create data directory if it doesn't exist
-    os.makedirs('data', exist_ok=True)
-    filepath = os.path.join('data', filename)
+    os.makedirs('data/all_meteors', exist_ok=True)
+    filepath = os.path.join('data/all_meteors', filename)
     
     try:
         with open(filepath, 'w') as f:
@@ -121,19 +121,6 @@ def main():
             # Process and save structured data
             df = process_meteor_data(data)
             
-            # Add date suffix to filenames
-            date_suffix = datetime.now().strftime('%Y%m%d_%H%M%S')
-            csv_filename = f'data/meteor_data_{date_suffix}.csv'
-            df.to_csv(csv_filename, index=False)
-            print(f"Processed data saved to {csv_filename}")
-            
-            # Print some basic statistics
-            print("\nBasic Statistics:")
-            print(f"Date range: {args.start_date or 'today'} to {args.end_date or 'today + 7 days'}")
-            print(f"Total meteors found: {len(df)}")
-            print(f"Potentially hazardous meteors: {df['is_potentially_hazardous'].sum()}")
-            print("\nAverage miss distance: {:.2f} km".format(df['miss_distance_km'].mean()))
-            print("Average diameter: {:.2f} km".format(df[['diameter_min_km', 'diameter_max_km']].mean().mean()))
     except ValueError as e:
         print(f"\nError: {e}")
 
