@@ -1,0 +1,15 @@
+import numpy as np
+
+#density
+
+default_Density = 2 
+C_Density = 1.38
+S_Density = 2.71
+M_Density = 5.32
+
+#mass of asteroid approx, 
+m = 3/4*(np.pi* estimated_diameter_min * estimated_diameter_max * estimated_diameter_min) * Density
+
+
+
+
