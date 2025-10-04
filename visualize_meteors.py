@@ -1,0 +1,157 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime
+import glob
+import os
+
+def load_latest_data():
+    """Load the most recent meteor data from CSV file"""
+    # Get list of all CSV files in data directory
+    csv_files = glob.glob('data/meteor_data_*.csv')
+    if not csv_files:
+        # If no timestamped files found, try the default file
+        if os.path.exists('data/meteor_data.csv'):
+            return pd.read_csv('data/meteor_data.csv', parse_dates=['date', 'close_approach_date'])
+        else:
+            raise FileNotFoundError("No meteor data files found. Please run fetch_meteors.py first.")
+    
+    # Get the most recent file
+    latest_file = max(csv_files, key=os.path.getctime)
+    return pd.read_csv(latest_file, parse_dates=['date', 'close_approach_date'])
+
+def plot_hazard_distribution(df):
+    """Create a pie chart showing distribution of potentially hazardous asteroids"""
+    plt.figure(figsize=(10, 6))
+    hazard_counts = df['is_potentially_hazardous'].value_counts()
+    plt.pie(hazard_counts, labels=['Safe', 'Potentially Hazardous'], 
+            autopct='%1.1f%%', colors=['lightgreen', 'coral'])
+    plt.title('Distribution of Potentially Hazardous Near Earth Objects')
+    plt.savefig('data/hazard_distribution.png')
+    plt.close()
+
+def plot_size_vs_distance(df):
+    """Create a scatter plot of asteroid size vs miss distance"""
+    plt.figure(figsize=(12, 8))
+    scatter = plt.scatter(df['diameter_max_km'], df['miss_distance_km'] / 1000, 
+                alpha=0.6, c=df['is_potentially_hazardous'].map({True: 'red', False: 'blue'}))
+    
+    # Add legend
+    legend_elements = [plt.Line2D([0], [0], marker='o', color='w', 
+                                markerfacecolor='blue', label='Safe', markersize=10),
+                      plt.Line2D([0], [0], marker='o', color='w', 
+                                markerfacecolor='red', label='Potentially Hazardous', markersize=10)]
+    plt.legend(handles=legend_elements)
+    
+    plt.xlabel('Maximum Diameter (km)')
+    plt.ylabel('Miss Distance (thousand km)')
+    plt.title('Asteroid Size vs Miss Distance')
+    
+    # Add logarithmic scale for better visualization
+    plt.xscale('log')
+    plt.yscale('log')
+    
+    plt.savefig('data/size_vs_distance.png')
+    plt.close()
+
+def plot_velocity_histogram(df):
+    """Create a histogram of relative velocities"""
+    plt.figure(figsize=(12, 6))
+    sns.histplot(data=df, x='relative_velocity_kph', bins=30, hue='is_potentially_hazardous',
+                palette=['blue', 'red'])
+    plt.xlabel('Relative Velocity (km/h)')
+    plt.ylabel('Count')
+    plt.title('Distribution of Asteroid Velocities')
+    plt.savefig('data/velocity_distribution.png')
+    plt.close()
+
+def plot_approaches_timeline(df):
+    """Create a timeline of close approaches"""
+    plt.figure(figsize=(15, 8))
+    
+    # Create scatter plot with size based on diameter
+    sizes = df['diameter_max_km'] * 100  # Scale the sizes to be visible
+    scatter = plt.scatter(df['close_approach_date'], df['miss_distance_km'] / 1000,
+                         c=df['is_potentially_hazardous'].map({True: 'red', False: 'blue'}),
+                         alpha=0.6, s=sizes)
+    
+    # Add legend
+    legend_elements = [
+        plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', 
+                   label='Safe', markersize=10),
+        plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='red', 
+                   label='Potentially Hazardous', markersize=10),
+        plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', 
+                   label='Size Scale', markersize=5),
+        plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', 
+                   label='', markersize=10),
+        plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', 
+                   label='', markersize=15)
+    ]
+    plt.legend(handles=legend_elements, title='Legend\nSize indicates diameter')
+    
+    plt.xlabel('Close Approach Date')
+    plt.ylabel('Miss Distance (thousand km)')
+    plt.title('Timeline of Close Approaches')
+    plt.xticks(rotation=45)
+    
+    # Add grid for better readability
+    plt.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig('data/approaches_timeline.png')
+    plt.close()
+
+def create_summary_statistics(df):
+    """Create and save summary statistics"""
+    stats = {
+        'Total NEOs': len(df),
+        'Potentially Hazardous': df['is_potentially_hazardous'].sum(),
+        'Average Diameter (km)': df['diameter_max_km'].mean(),
+        'Average Miss Distance (km)': df['miss_distance_km'].mean(),
+        'Average Velocity (km/h)': df['relative_velocity_kph'].mean(),
+        'Closest Approach (km)': df['miss_distance_km'].min(),
+        'Largest Object (km)': df['diameter_max_km'].max(),
+        'Date Range': f"{df['date'].min().strftime('%Y-%m-%d')} to {df['date'].max().strftime('%Y-%m-%d')}"
+    }
+    
+    # Save statistics to a text file
+    with open('data/summary_statistics.txt', 'w') as f:
+        f.write("Near Earth Objects Analysis Summary\n")
+        f.write("==================================\n\n")
+        for key, value in stats.items():
+            if isinstance(value, float):
+                f.write(f"{key}: {value:,.2f}\n")
+            else:
+                f.write(f"{key}: {value}\n")
+
+def main():
+    try:
+        # Load the data
+        print("Loading meteor data...")
+        df = load_latest_data()
+        
+        print("Creating visualizations...")
+        # Create various plots
+        plot_hazard_distribution(df)
+        plot_size_vs_distance(df)
+        plot_velocity_histogram(df)
+        plot_approaches_timeline(df)
+        
+        # Generate summary statistics
+        create_summary_statistics(df)
+        
+        print("\nVisualizations have been saved in the data directory:")
+        print("- hazard_distribution.png")
+        print("- size_vs_distance.png")
+        print("- velocity_distribution.png")
+        print("- approaches_timeline.png")
+        print("- summary_statistics.txt")
+        
+    except FileNotFoundError as e:
+        print(f"\nError: {e}")
+    except Exception as e:
+        print(f"\nAn error occurred: {e}")
+
+if __name__ == "__main__":
+    main()
