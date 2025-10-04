@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroid Impact Simulator</title>
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <!-- Removed plotly as it's no longer needed -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Visualization -->
+        <div class="visualization-section">
+            <div id="visualization" class="visualization-container">
+                <div id="loading">Loading 3D Visualization...</div>
+            </div>
+        </div>
+        
+        <!-- Side Panels -->
+        <div class="panels-section">
+            <!-- Simulation Controls Panel -->
+            <div class="panel-wrapper">
+                <div class="info-panel">
+                    <div class="sticky-header">
+                        <h3>Simulation Controls</h3>
+                    </div>
+                    <div class="panel-content">
+                        <div class="control-group">
+                            <label class="title">Select Real Meteor</label>
+                            <select class="form-select" id="meteor-select" onchange="onMeteorSelect(event)">
+                                <option value="custom">Custom Values</option>
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                        </div>
+
+                        <div id="custom-controls">
+                            <div class="control-group spacing-top">
+                                <label>Asteroid Diameter (km)</label>
+                                <input type="range" class="form-range" id="diameter-slider" 
+                                       min="0.1" max="10" step="0.1" value="1">
+                                <div class="value-display">1.0 km</div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Velocity (km/s)</label>
+                                <input type="range" class="form-range" id="velocity-slider" 
+                                       min="5" max="72" step="0.5" value="15">
+                                <div class="value-display">20 km/s</div>
+                            </div>
+                        </div>
+
+                        <div id="meteor-details" class="spacing-top" style="display: none;">
+                            <div class="meteor-info-panel">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Impact Effects Panel -->
+            <div class="panel-wrapper">
+                <div class="info-panel">
+                    <div class="sticky-header">
+                        <h3>Impact Effects</h3>
+                    </div>
+                    <div class="panel-content">
+                        <div id="effects-info"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/meteor_data.js"></script>
+    <script src="/static/js/impact_effects.js"></script>
+    <script src="/static/js/visualization.js"></script>
+    <script src="/static/js/effects.js"></script>
+    <script src="/static/js/simulation_controls.js"></script>
+</body>
+</html>
