@@ -33,7 +33,7 @@ function updateValueDisplay(slider) {
     const value = parseFloat(slider.value);
     
     if (slider.id === 'diameter-slider') {
-        display.textContent = `${value.toFixed(1)} km`;
+        display.textContent = `${value.toFixed(2)} km`;
     } else if (slider.id === 'velocity-slider') {
         display.textContent = `${value} km/s`;
     }
