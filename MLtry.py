@@ -4,10 +4,14 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 import matplotlib.pyplot as plt
+import os
+from joblib import dump, load 
 
 # === Load CSV ===
-file_name = "processed_meteors.csv"
-df = pd.read_csv(file_name)
+
+print(os.path.exists("./data/all_meteors/visualization/processed_meteors.csv"))
+file_path = "./data/all_meteors/visualization/processed_meteors.csv"
+df = pd.read_csv(file_path)
 print("CSV loaded successfully!")
 print("HEAD:\n", df.head())
 print("\nINFO:\n", df.info())
@@ -61,11 +65,22 @@ plt.title("Feature Importance")
 plt.show()
 print("\nFeature Importances:", dict(zip(features, importances)))
 
-# === Save predictions ===
+
+# === Saving data and the model ====
+
+# Create folder if it doesn't exist
+save_dir = "./models_and_results"
+os.makedirs(save_dir, exist_ok=True)
+# Save predictions 
 predictions = pd.DataFrame({
     "name": df.loc[y_test.index, "name"],
     "true_hazardous": y_test,
     "predicted_hazardous": y_pred
 })
-predictions.to_csv("predicted_hazardous_asteroids.csv", index=False)
+predictions_path = os.path.join(save_dir, "predicted_hazardous_asteroids.csv" )
+predictions.to_csv(predictions_path, index=False)
 print("\nPredictions saved to predicted_hazardous_asteroids.csv")
+# Save the model so we dont need to train it every time 
+model_path = os.path.join(save_dir, "meteor_model.joblib")
+dump(model, model_path)
+print(f"✅ Model saved to {model_path}")
