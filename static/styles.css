@@ -5,7 +5,6 @@ html, body {
     background-color: #1a1a1a;
     color: #ffffff;
     font-family: 'Roboto', sans-serif;
-    overflow: hidden;
     scrollbar-width: none;  /* Firefox */
     -ms-overflow-style: none;  /* IE and Edge */
 }
