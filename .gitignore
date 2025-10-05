@@ -17,3 +17,5 @@ env/
 
 # Data files
 data/
+
+!static/data/
