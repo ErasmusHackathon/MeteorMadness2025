@@ -1,6 +1,15 @@
 // Simple impact visualization
 let impactMarker = null;
 
+// Define damage zone colors - making them accessible throughout the file
+const DAMAGE_ZONE_COLORS = {
+    total: '#ff69b4',      // Hot Pink - Total destruction
+    severe: '#ff1493',     // Deep Pink - Severe damage
+    moderate: '#ff0000',   // Red - Moderate damage
+    light: '#ff4500',      // Orange Red - Light damage
+    minimal: '#ffa500'     // Orange - Window breakage
+};
+
 function createImpactPoint(lat, lon) {
     // Convert lat/lon to 3D position on Earth's surface
     const phi = (90 - lat) * (Math.PI / 180);
@@ -32,11 +41,11 @@ function createDamageCircles(baseRadius, craterRadius) {
     
     // Define zones based on real damage effects
     const zones = [
-        { radius: baseRadius * 1, color: 0xff69b4, opacity: 0.9 },  // Hot Pink - Total destruction
-        { radius: baseRadius * 2, color: 0xff1493, opacity: 0.8 },  // Deep Pink - Severe damage
-        { radius: baseRadius * 4, color: 0xff0000, opacity: 0.7 },  // Red - Moderate damage
-        { radius: baseRadius * 8, color: 0xff4500, opacity: 0.5 },  // Orange Red - Light damage
-        { radius: baseRadius * 16, color: 0xffa500, opacity: 0.3 }  // Orange - Window breakage
+        { radius: baseRadius * 1, color: DAMAGE_ZONE_COLORS.total, opacity: 0.9 },
+        { radius: baseRadius * 2, color: DAMAGE_ZONE_COLORS.severe, opacity: 0.8 },
+        { radius: baseRadius * 4, color: DAMAGE_ZONE_COLORS.moderate, opacity: 0.7 },
+        { radius: baseRadius * 8, color: DAMAGE_ZONE_COLORS.light, opacity: 0.5 },
+        { radius: baseRadius * 16, color: DAMAGE_ZONE_COLORS.minimal, opacity: 0.3 }
     ];
     
     zones.forEach((zone, index) => {
@@ -44,7 +53,7 @@ function createDamageCircles(baseRadius, craterRadius) {
         const innerRadius = index > 0 ? zones[index - 1].radius : 0;
         const geometry = new THREE.RingGeometry(innerRadius, zone.radius, 64);
         const material = new THREE.MeshBasicMaterial({
-            color: zone.color,
+            color: parseInt(zone.color.replace('#', '0x')),
             opacity: zone.opacity,
             transparent: true,
             side: THREE.DoubleSide,
@@ -83,6 +92,15 @@ function updateDamageZones(position, baseRadius, craterRadius) {
     impactMarker.lookAt(new THREE.Vector3(0, 0, 0));
     
     scene.add(impactMarker);
+
+    // Update the DOM elements with corresponding colors
+    const zones = document.querySelectorAll('.damage-zone');
+    zones.forEach((zone, index) => {
+        const colors = Object.values(DAMAGE_ZONE_COLORS);
+        if (index < colors.length) {
+            zone.style.color = colors[index];
+        }
+    });
 }
 
 async function createDamageZones(position) {

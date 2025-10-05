@@ -78,14 +78,19 @@ function displayEffects(data) {
     let html = `
         <div class="effect-details">
             <div class="effect-section">
-                <label class="title">Impact Energy</label>
-                <div class="effect-value">${energy.tnt_equivalent_mt.toFixed(2)} Megatons TNT</div>
-                <div class="effect-subvalue">${energy.kinetic_energy_j.toExponential(2)} Joules</div>
-            </div>
-            
-            <div class="effect-section">
-                <label class="title">Crater Size</label>
-                <div class="effect-value">${data.crater_effects ? Math.round(data.crater_effects.crater_diameter_km * 10) / 10 : 'N/A'} km diameter</div>
+                <label class="title">Impact Details</label>
+                <div class="detail-row">
+                    <div class="detail-name">Impact Energy</div>
+                    <div class="detail-value">${energy.tnt_equivalent_mt.toFixed(2)} Megatons TNT</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-name">Energy in Joules</div>
+                    <div class="detail-value">${energy.kinetic_energy_j.toExponential(2)} J</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-name">Crater Diameter</div>
+                    <div class="detail-value">${data.crater_effects ? Math.round(data.crater_effects.crater_diameter_km * 10) / 10 : 'N/A'} km</div>
+                </div>
             </div>
 
             <div class="effect-section">
