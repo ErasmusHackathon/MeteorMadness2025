@@ -62,7 +62,7 @@ function init() {
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 15000; // Prevent zooming too close
-    controls.maxDistance = 50000; // Prevent zooming too far
+    controls.maxDistance = 200000; // Prevent zooming too far
     controls.enablePan = false;   // Disable panning
     controls.maxPolarAngle = Math.PI / 1.5; // Limit vertical rotation
     controls.minPolarAngle = Math.PI / 4;   // Limit vertical rotation

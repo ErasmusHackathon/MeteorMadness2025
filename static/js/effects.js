@@ -10,6 +10,10 @@ async function updateEffectsWithParams(params) {
             energy: {
                 kinetic_energy_j: energy,
                 tnt_equivalent_mt: energy / 4.184e15
+            },
+            crater_effects: {
+                crater_diameter_km: Math.pow(energy / 4.184e15, 1/3) * 0.5, // Simple approximation based on energy
+                estimated_asteroid_diameter_m: params.diameter_km * 1000
             }
         };
         
@@ -42,16 +46,33 @@ function displayEffects(data) {
     const energy = data.energy;
     const effects = data.effects_by_distance;
     
-    // Calculate damage radii based on energy
+    // Calculate damage radii based on scientific models
     const energyMT = energy.tnt_equivalent_mt;
-    const baseRadius = Math.pow(energyMT, 1/3) * 10;
     
+    // Using scaled calculations based on nuclear weapons effects and asteroid impact studies
+    // Overpressure levels in kilopascals (kPa)
+    // Radius scales with cube root of yield, using Hopkinson-Cranz scaling law
     const zones = [
-        { radius: baseRadius * 1, description: "Total Destruction" },
-        { radius: baseRadius * 2, description: "Severe Damage" },
-        { radius: baseRadius * 4, description: "Moderate Damage" },
-        { radius: baseRadius * 8, description: "Light Damage" },
-        { radius: baseRadius * 16, description: "Window Breakage" }
+        { 
+            radius: Math.pow(energyMT, 1/3) * 0.35, // Direct calculation in km using Hopkinson-Cranz scaling
+            description: "Total Destruction (≥140 kPa)" 
+        },
+        { 
+            radius: Math.pow(energyMT, 1/3) * 0.56,
+            description: "Severe Damage (≥70 kPa)" 
+        },
+        { 
+            radius: Math.pow(energyMT, 1/3) * 0.85,
+            description: "Moderate Damage (≥35 kPa)" 
+        },
+        { 
+            radius: Math.pow(energyMT, 1/3) * 1.40,
+            description: "Light Damage (≥14 kPa)" 
+        },
+        { 
+            radius: Math.pow(energyMT, 1/3) * 2.17,
+            description: "Window Breakage (≥7 kPa)" 
+        }
     ];
     
     let html = `
@@ -62,6 +83,11 @@ function displayEffects(data) {
                 <div class="effect-subvalue">${energy.kinetic_energy_j.toExponential(2)} Joules</div>
             </div>
             
+            <div class="effect-section">
+                <label class="title">Crater Size</label>
+                <div class="effect-value">${data.crater_effects ? Math.round(data.crater_effects.crater_diameter_km * 10) / 10 : 'N/A'} km diameter</div>
+            </div>
+
             <div class="effect-section">
                 <label class="title">Damage Zones</label>
                 ${zones.map(zone => `

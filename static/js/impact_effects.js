@@ -13,8 +13,22 @@ function createImpactPoint(lat, lon) {
     return new THREE.Vector3(x, y, z);
 }
 
-function createDamageCircles(baseRadius) {
+function createDamageCircles(baseRadius, craterRadius) {
     const group = new THREE.Group();
+    
+    // Add crater visualization first
+    if (craterRadius) {
+        const craterGeometry = new THREE.CircleGeometry(craterRadius, 64);
+        const craterMaterial = new THREE.MeshBasicMaterial({
+            color: 0x8B4513,  // Saddle Brown - representing crater
+            opacity: 0.95,
+            transparent: true,
+            side: THREE.DoubleSide,
+            depthWrite: false
+        });
+        const crater = new THREE.Mesh(craterGeometry, craterMaterial);
+        group.add(crater);
+    }
     
     // Define zones based on real damage effects
     const zones = [
@@ -46,7 +60,7 @@ function createDamageCircles(baseRadius) {
     return group;
 }
 
-function updateDamageZones(position, baseRadius) {
+function updateDamageZones(position, baseRadius, craterRadius) {
     // Remove existing marker if any
     if (impactMarker) {
         scene.remove(impactMarker);
@@ -55,8 +69,8 @@ function updateDamageZones(position, baseRadius) {
     // Create new impact marker group
     impactMarker = new THREE.Group();
     
-    // Create damage circles
-    const circles = createDamageCircles(baseRadius);
+    // Create damage circles with crater
+    const circles = createDamageCircles(baseRadius, craterRadius);
     impactMarker.add(circles);
     
     // Position circles well above surface to prevent z-fighting
@@ -86,9 +100,10 @@ async function createDamageZones(position) {
         // Get effects data
         const data = await updateEffectsWithParams(impactData);
         const baseRadius = Math.pow(data.energy.tnt_equivalent_mt, 1/3) * 10;
+        const craterRadius = data.crater_effects.crater_diameter_km * 10;  // Scale crater size for visualization
         
         // Create initial damage zones
-        updateDamageZones(position, baseRadius);
+        updateDamageZones(position, baseRadius, craterRadius);
         
     } catch (error) {
         console.error('Error creating damage zones:', error);
@@ -117,9 +132,6 @@ function addEarthClickHandler() {
             
             // Create damage zones at clicked position
             createDamageZones(point);
-            
-            // Update effects panel
-            updateEffectsInfo(lat, lon);
             
             console.log(`Impact at lat: ${lat.toFixed(2)}, lon: ${lon.toFixed(2)}`);
         }
