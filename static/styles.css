@@ -274,6 +274,10 @@ body::-webkit-scrollbar {
     margin-bottom: 0.5rem;
 }
 
+#custom-controls > .control-group {
+    margin-bottom: 0px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 1200px) {
     .app-container {
